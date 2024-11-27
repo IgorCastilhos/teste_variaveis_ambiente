@@ -1,0 +1,35 @@
+name: Generate Static Page
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: ${{ vars.APP_ENV }}
+      DB_HOST: ${{ vars.DB_HOST }}
+      DB_USER: ${{ vars.DB_USER }}
+      API_KEY: ${{ secrets.API_KEY }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+
+    - name: Generate static HTML
+      run: php process_env.php
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        publish_branch: gh-pages
+        keep_files: true
